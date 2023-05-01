@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daiva Nakshe</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <style>
+        /* #map { 
+            width:900px;
+            height: 670px;
+         } */
+    </style>
+</head>
+
+<body class="bg-yellow-50 max-w-8xl mx-auto">
+    <div class="flex flex-col md:flex-row gap-10">
+        <div id="map" class="w-screen h-screen"></div>
+    <div class="information w-5/6 py-20 pr-10">
+        <h1 class="text-3xl text-orange-600 font-bold">ದೈವ ನಕ್ಷೆ : Sacred Groves of Kodagu</h1>
+        <p class="pt-10 text-sm text-blue-900" >The concept of Devarakadu or the Sacred Grove is a very popular tradition in Kodagu. Sacred groves exist all over India and in the rest of the world but what makes Kodagu unique is that this little district has probably the highest density of sacred groves in all of India with about 1214 that are officially listed. Almost every village has one or more sacred groves, while 14 villages have more than ten groves each and Thakeri village in Somwarpet Taluk has the largest number with 17 groves. (Kushalappa and Kushalappa 1996).</p> <br>
+        <div class="hover text-xl">
+            <h3> 👆 Hover over villages to know details regarding their sacred groves</h3>
+        </div>
+        <div id="info" class="pt-10"></div>
+    </div>
+    </div>
+    <div id="credits" class="flex flex-col items-center justify-center mx-auto pt-10">
+        <img src="SMIbg.png" alt="" class="w-2/3">
+        <p class="text-xs w-2/3 text-center pb-10">“Spaces and Systems for Learning" is a studio. offered for 2nd and 3rd year UGPP aspiring practitioners of SMI 2022-23! Designed, curated and facilitated by Sudebi Thakurata and co-facilitated by Dr Farhat Ara, this unit explored how Coorg, a highly visited place by tourists, be seen as a learning experience? What kind of learning opportunities can be located and created using design as an approach for people to connect better with the place, appreciate, be aware, take action? As a part of the unit we visited different spaces, both private and public, in Coorg and envisioned accessible, portable, easily usable learning materials which can either enable a traveler to experience, explore or experiment with the place. This is one such attempt to bring a shift in someone to be a traveler from a tourist. 
+            We are grateful to Babita Belliappa for being an invaluable part of this experience and Dr Sunil Muddaiya, Manoj Kumar, Arati Monappa, Dr Savinaya MS, Dr Gururaj, Revathi, Vinu, Urvashi, Raagini, Arun Achappa, Chimma, Coorg Institute of Dental Sciences, Pachibale Homestay, Taj Madikeri, Apaulogy gallery and Lightroom bookstore for their support.
+            </p>
+    </div>
+</body>
+
+</html>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="kodagu_villages.js"></script>
+<script src="merged_trial_full.js"></script>
+
+<script>
+
+map = L.map("map").setView([12.35315, 75.960846], 10);
+L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
+	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	subdomains: 'abcd',
+	ext: 'png'
+}).addTo(map);
+
+function getColor(d) {
+  return d > 1000 ? '#362E23' :
+         d > 500  ? '#3A3C26' :
+         d > 200  ? '#6D6C3C' :
+         d > 100  ? '#A9AC5D' :
+         d > 0   ? '#FFEDA0' :
+                    '#E8E1DB';
+}
+
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.LAND_FORES),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
+}
+
+L.geoJson(kodaguVillagesJSON, {style: style}).addTo(map);
+
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.3
+    });
+
+    layer.bringToFront();
+
+    // Display data of village
+	var infoDiv = document.getElementById("info");
+	infoDiv.innerHTML = infoUpdate(layer.feature.properties);
+}
+
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+}
+
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+}
+
+geojson = L.geoJson(merged_geojson_full, {
+    style: style,
+    onEachFeature: onEachFeature
+}).addTo(map);
+
+function infoUpdate(props) {
+	return (
+		"<h4 class='text-2xl text-orange-600'>"+ props.VILL_NAME +"</h4>" +
+		(props ?
+			"<p class='pt-5 text-blue-900''><b>" + "Deities worshipped:" + "</b><br /></p>" + "<p class='text-l'>" + props.name_of_the_deity + "</p><br>" :
+			"Hover over a village")+ "<p class='text-blue-900'><b>Total area conserved </b><p><br>" +"<h2 class='text-5xl'>"+ props.acres + " Acres" + "<h2>" );
+}
+
+</script>
