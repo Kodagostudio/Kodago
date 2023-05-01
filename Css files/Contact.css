@@ -1,17 +1,17 @@
 @font-face {
     font-family: Philo;
-    src: url("/Font/Philosopher-Regular.woff2") format("woff");
+    src: url("Font/Philosopher-Regular.woff2") format("woff");
     
   }
   
   @font-face {
     font-family: PhiloB;
-    src: url("/Font/Philosopher-Bold.woff2") format("woff");
+    src: url("Font/Philosopher-Bold.woff2") format("woff");
   }
   
   @font-face {
     font-family: Hel;
-    src: url("/Font/Helvetica.woff2") format("woff");
+    src: url("Font/Helvetica.woff2") format("woff");
   }
   
   
